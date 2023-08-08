@@ -57,7 +57,7 @@
     </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/tv_questions"
+        android:id="@+id/tv_score_questions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/card_view"
@@ -75,8 +75,8 @@
         android:id="@+id/tv_text_questions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/tv_questions"
-        app:layout_constraintTop_toTopOf="@id/tv_questions"
+        app:layout_constraintEnd_toStartOf="@id/tv_score_questions"
+        app:layout_constraintTop_toTopOf="@id/tv_score_questions"
         android:text="Вопрос:"
         android:textColor="@color/white"
         android:textSize="26sp"
@@ -85,12 +85,12 @@
         />
 
     <TextView
-        android:id="@+id/tv_level_much"
+        android:id="@+id/tv_score_level"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tv_questions"
-        app:layout_constraintStart_toStartOf="@id/tv_questions"
-        app:layout_constraintEnd_toEndOf="@id/tv_questions"
+        app:layout_constraintTop_toBottomOf="@id/tv_score_questions"
+        app:layout_constraintStart_toStartOf="@id/tv_score_questions"
+        app:layout_constraintEnd_toEndOf="@id/tv_score_questions"
         android:text="1"
         android:textColor="@color/white"
         android:textSize="26sp"
@@ -103,7 +103,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="@id/tv_text_questions"
-        app:layout_constraintTop_toTopOf="@id/tv_level_much"
+        app:layout_constraintTop_toTopOf="@id/tv_score_level"
         android:text="Уровень:"
         android:textColor="@color/white"
         android:textSize="26sp"
@@ -114,7 +114,7 @@
         android:layout_width="match_parent"
         android:layout_height="360dp"
         android:backgroundTint="@color/bacHomeFragment"
-        app:layout_constraintTop_toBottomOf="@id/tv_level_much"
+        app:layout_constraintTop_toBottomOf="@id/tv_score_level"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:cardCornerRadius="16dp"

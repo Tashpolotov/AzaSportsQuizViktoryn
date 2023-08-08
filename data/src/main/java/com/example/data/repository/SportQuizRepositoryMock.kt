@@ -5,9 +5,23 @@ import com.example.domain.model.LevelModel
 import com.example.domain.model.SportQuestionModel
 import com.example.domain.model.SportsModel
 import com.example.domain.repository.SportsQuizRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class SportQuizRepositoryMock:SportsQuizRepository {
 
+    private val _completedLevels: MutableStateFlow<Set<Int>> = MutableStateFlow(emptySet())
+    val completedLevels: StateFlow<Set<Int>> = _completedLevels
+
+
+
+    override fun getCompletedLevels(): Set<Int> {
+        return completedLevels.value
+    }
+
+    override fun updateCompletedLevels(level: Int) {
+        _completedLevels.value = _completedLevels.value + level
+    }
 
     override fun getSport(name: String): List<SportsModel> {
         return listOf(
@@ -23,6 +37,9 @@ class SportQuizRepositoryMock:SportsQuizRepository {
             LevelModel(1, "Football"),
             LevelModel(2, "Football"),
             LevelModel(3, "Football"),
+            LevelModel(4, "Football"),
+            LevelModel(5, "Football"),
+            LevelModel(6, "Football"),
         )
         "Basketball" -> listOf(
             LevelModel(1, "Basketball"),
@@ -91,21 +108,83 @@ class SportQuizRepositoryMock:SportsQuizRepository {
                     "3" -> listOf(
                         SportQuestionModel(
                             "Football", "3", "Kto ty?",
-                            listOf("aiba", "beka", "aaa"), 0
+                            listOf("at", "beka", "aaa"), 0
                         ),
                         SportQuestionModel(
                             "Football", "3", "Kto ty?",
-                            listOf("dannka", "me", "hhh"), 0
+                            listOf("orlo", "me", "hhh"), 0
                         ),
                         SportQuestionModel(
                             "Football", "3", "Kto ty?",
-                            listOf("danankiiiw", "me", "hhh"), 2
+                            listOf("nege", "me", "hhh"), 2
                         ),
                         SportQuestionModel(
                             "Football", "3", "Kto ty?",
-                            listOf("ttaaarynbaaaaaaa", "me", "hhh"), 2
+                            listOf("ewek", "me", "hhh"), 2
                         )
                     )
+
+                    "4" -> listOf(
+                        SportQuestionModel(
+                            "Football", "4", "Kto ty?",
+                            listOf("mes", "beka", "aaa"), 0
+                        ),
+                        SportQuestionModel(
+                            "Football", "4", "Kto ty?",
+                            listOf("sen", "me", "hhh"), 0
+                        ),
+                        SportQuestionModel(
+                            "Football", "4", "Kto ty?",
+                            listOf("al", "me", "hhh"), 2
+                        ),
+                        SportQuestionModel(
+                            "Football", "4", "Kto ty?",
+                            listOf("ewek", "me", "hhh"), 2
+                        )
+                    )
+
+                    "5" -> listOf(
+                        SportQuestionModel(
+                            "Football", "5", "Kto ty?",
+                            listOf("kot", "beka", "aaa"), 0
+                        ),
+                        SportQuestionModel(
+                            "Football", "5", "Kto ty?",
+                            listOf("loh", "me", "hhh"), 0
+                        ),
+                        SportQuestionModel(
+                            "Football", "5", "Kto ty?",
+                            listOf("net", "me", "hhh"), 2
+                        ),
+                        SportQuestionModel(
+                            "Football", "5", "Kto ty?",
+                            listOf("da", "me", "hhh"), 2
+                        )
+                    )
+
+                    "6" -> listOf(
+                        SportQuestionModel(
+                            "Football", "6", "Kto ty?",
+                            listOf("kot", "beka", "aaa"), 0
+                        ),
+                        SportQuestionModel(
+                            "Football", "6", "Kto ty?",
+                            listOf("loh", "me", "hhh"), 0
+                        ),
+                        SportQuestionModel(
+                            "Football", "6", "Kto ty?",
+                            listOf("net", "me", "hhh"), 2
+                        ),
+                        SportQuestionModel(
+                            "Football", "6", "Kto ty?",
+                            listOf("da", "me", "hhh"), 2
+                        )
+                    )
+
+
+
+
+
                     else -> emptyList()
                 }
             )
@@ -185,4 +264,5 @@ class SportQuizRepositoryMock:SportsQuizRepository {
 
         return allQuestions
     }
+
 }

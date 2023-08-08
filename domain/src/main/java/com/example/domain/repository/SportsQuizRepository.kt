@@ -12,4 +12,7 @@ interface SportsQuizRepository {
 
     fun getQuestion(name:String, level: String) : List<SportQuestionModel>
 
+    fun updateCompletedLevels(level: Int): Unit
+
+    fun getCompletedLevels(): Set<Int>
 }

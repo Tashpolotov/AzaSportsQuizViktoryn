@@ -1,6 +1,8 @@
 package com.example.azasportsquizviktoryn.ui.fragments
 
 import android.os.Bundle
+import android.preference.PreferenceManager
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -18,10 +20,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class SportLevelFragment : Fragment() {
 
-    // Поля для хранения данных
     private lateinit var binding: FragmentSportLevelBinding
     private val viewModel by viewModels<SportsQuizViewModel>()
-    private var currentLevel = 1 // Переменная для хранения текущего уровня
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,11 +34,9 @@ class SportLevelFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Получение данных из аргументов
         val sportName = arguments?.getString("sportName")
         val sportImage = arguments?.getInt("sportImage")
 
-        // Установка данных в интерфейс
         if (sportImage != null) {
             binding.imgSport.setImageResource(sportImage)
         }
@@ -46,51 +44,64 @@ class SportLevelFragment : Fragment() {
             binding.tvNameSport.text = sportName
             initView(sportName)
         }
+
+        binding.imgBack.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun initView(name: String) {
-        // Устанавливаем текущий уровень в соответствии с последним открытым уровнем
-        currentLevel = viewModel.quizSport.value.lastUnlockedLevel + 1
+        // Загрузите последний открытый уровень
+        val lastUnlockedLevel = getLastUnlockedLevelFromRepository()
 
-        // Инициализация адаптера
-        val adapter = SportLevelAdapter(this::onItemClick)
+        // Передайте список пройденных уровней и последний открытый уровень в адаптер
+        val adapter = SportLevelAdapter(this::onItemClick, viewModel.completedLevels.value.toSet())
+        adapter.updateProgress(lastUnlockedLevel)
         binding.rv.adapter = adapter
 
-        // Загрузка данных об уровнях
         lifecycleScope.launchWhenCreated {
-            viewModel.quizSport.collect { sportQuizModel ->
-                sportQuizModel?.let {
-                    adapter.updateProgress(it.lastUnlockedLevel) // Обновляем прогресс уровней
-                    adapter.submitList(it.level)
-                }
+            viewModel.quizSport.collect {
+                adapter.submitList(it.level)
             }
         }
         viewModel.loadSportLevel(name)
+
+        binding.imgBack.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun onItemClick(selectedLevel: LevelModel) {
-        val lastUnlockedLevel = viewModel.quizSport.value.lastUnlockedLevel
-
-        if (selectedLevel.level <= lastUnlockedLevel + 1) {
-            // Уровень открыт, загружаем следующий уровень
-            currentLevel = selectedLevel.level // Устанавливаем текущий уровень на выбранный уровень
+        // Проверяем, является ли текущий уровень последним открытым уровнем или меньше него
+        val lastUnlockedLevel = viewModel.getLastUnlockedLevel()
+        if (selectedLevel.level <= lastUnlockedLevel) {
+            // Уровень открыт, переходим к выбранному уровню
             val sportQuestionFragment = SportQuestionFragment()
             val args = Bundle().apply {
                 putString("selected", selectedLevel.sportCategory) // Передаем имя спорта
-                putInt("level", currentLevel) // Передаем текущий уровень
+                putInt("level", selectedLevel.level) // Передаем номер уровня
             }
             sportQuestionFragment.arguments = args
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fr_container, sportQuestionFragment)
                 .addToBackStack(null)
                 .commit()
+
+            // Здесь вызываем метод для обновления пройденных уровней
+            viewModel.updateCompletedLevel(selectedLevel.level)
         } else {
             // Уровень закрыт, показываем сообщение об ошибке или что-то другое
             Toast.makeText(
                 requireContext(),
-                "Завершите предыдущие уровни, чтобы открыть этот уровень.",
+                "Ответьте правильно на все вопросы предыдущих уровней",
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    // Вместо этой заглушки необходимо реализовать получение последнего открытого уровня из репозитория
+    private fun getLastUnlockedLevelFromRepository(): Int {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        return sharedPreferences.getInt("last_unlocked_level", 1)
     }
 }

@@ -2,6 +2,7 @@ package com.example.azasportsquizviktoryn.ui.fragments
 
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -16,17 +17,18 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SportQuestionFragment : Fragment() {
-    
+
     private lateinit var binding: FragmentSportQuestionBinding
     private val viewModel by viewModels<SportsQuizViewModel>()
     private var currentQuestionIndex = 0
     private lateinit var currentQuestion: SportQuestionModel
     private var allAnswersCorrect = true
     private var answered = false
-    private val handler = Handler()
     private var correctAnswersCount = 0
-    private var isLevel2Opened = false
-
+    private var currentQuestionCounter = 0
+    private var currentLevelCounter = 1
+    private var totalLevels = 0
+    private var totalQuestionsInCurrentLevel = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,6 +50,9 @@ class SportQuestionFragment : Fragment() {
                 sportQuizModel?.let {
                     val questionsForSport = it.questions
 
+                    totalLevels = questionsForSport.lastOrNull()?.level?.toInt() ?: 0
+                    totalQuestionsInCurrentLevel = questionsForSport.count { question -> question.level.toInt() == currentLevelCounter }
+
                     if (currentQuestionIndex in questionsForSport.indices) {
                         currentQuestion = questionsForSport[currentQuestionIndex]
                         binding.tvQuestions1.text = currentQuestion.question
@@ -58,6 +63,9 @@ class SportQuestionFragment : Fragment() {
                         binding.cardAnswer1.setOnClickListener { onAnswerSelected(0) }
                         binding.cardAnswer2.setOnClickListener { onAnswerSelected(1) }
                         binding.cardAnswer3.setOnClickListener { onAnswerSelected(2) }
+
+                        currentQuestionCounter++
+                        updateCounters()
                     }
                 }
             }
@@ -70,9 +78,11 @@ class SportQuestionFragment : Fragment() {
         }
         answered = true
         if (selectedAnswer == currentQuestion.correctAnswer) {
+            Log.e("SportQuestionFragment", "Правильный ответ")
             Toast.makeText(requireContext(), "Правильно!", Toast.LENGTH_SHORT).show()
             correctAnswersCount++
         } else {
+            Log.e("SportQuestionFragment", "Неправильный ответ")
             Toast.makeText(requireContext(), "Неправильно!", Toast.LENGTH_SHORT).show()
             allAnswersCorrect = false
         }
@@ -82,55 +92,56 @@ class SportQuestionFragment : Fragment() {
 
         if (currentQuestionIndex == viewModel.quizSport.value.questions.size - 1) {
             if (allAnswersCorrect) {
-                openSecondLevel()
+                Log.e("SportQuestionFragment", "Все ответы правильны. Открываем следующий уровень.")
+                openNextLevel()
             } else {
+                Log.e("SportQuestionFragment", "Вопросы закончились. Не все ответы правильны.")
                 binding.cardAnswer1.isEnabled = false
                 binding.cardAnswer2.isEnabled = false
                 binding.cardAnswer3.isEnabled = false
                 Toast.makeText(requireContext(), "Вопросы закончились", Toast.LENGTH_SHORT).show()
             }
-        }
-        handler.postDelayed({
-            moveToNextQuestion()
-        }, 2000)
-    }
-    private fun checkIfAllCorrectAnswers(): Boolean {
-        val questionsForSport = viewModel.quizSport.value.questions
-        return correctAnswersCount == questionsForSport.size
-    }
-    private fun openSecondLevel() {
-        if (isLevel2Opened) {
-            return
-        }
-        if (checkIfAllCorrectAnswers()) {
-            Toast.makeText(requireContext(), "Поздравляем! Вы перешли на второй уровень!", Toast.LENGTH_LONG).show()
-            val sportName = arguments?.getString("selected")
-            viewModel.loadQuestions(sportName.toString(), level = "2")
-            currentQuestionIndex = 0
-            val questionsForSport = viewModel.quizSport.value.questions
-            if (currentQuestionIndex in questionsForSport.indices) {
-                currentQuestion = questionsForSport[currentQuestionIndex]
-                binding.tvQuestions1.text = currentQuestion.question
-                binding.tvAnswer1.text = currentQuestion.answers[0]
-                binding.tvAnswer2.text = currentQuestion.answers[1]
-                binding.tvAnswer3.text = currentQuestion.answers[2]
-            }
-            allAnswersCorrect = true
-            binding.cardAnswer1.isEnabled = true
-            binding.cardAnswer2.isEnabled = true
-            binding.cardAnswer3.isEnabled = true
-
-            answered = false
-            isLevel2Opened = true
         } else {
-            binding.cardAnswer1.isEnabled = false
-            binding.cardAnswer2.isEnabled = false
-            binding.cardAnswer3.isEnabled = false
-            Toast.makeText(requireContext(), "Вопросы закончились", Toast.LENGTH_SHORT).show()
+            Log.e("SportQuestionFragment", "Переходим к следующему вопросу.")
+            moveToNextQuestion()
         }
     }
+
+    private fun openNextLevel() {
+        Log.d("SportQuestionFragment", "Открываем следующий уровень")
+        val sportName = arguments?.getString("selected")
+        val currentLevel = currentQuestion.level.toInt()
+        val nextLevel = currentLevel + 1
+        viewModel.updateCompletedLevel(nextLevel)
+
+        viewModel.loadQuestions(sportName.toString(), level = nextLevel.toString())
+
+        currentQuestionIndex = viewModel.quizSport.value.questions.indexOfFirst { it.level == nextLevel.toString() }
+        val questionsForSport = viewModel.quizSport.value.questions
+        if (currentQuestionIndex in questionsForSport.indices) {
+            currentQuestion = questionsForSport[currentQuestionIndex]
+            binding.tvQuestions1.text = currentQuestion.question
+            binding.tvAnswer1.text = currentQuestion.answers[0]
+            binding.tvAnswer2.text = currentQuestion.answers[1]
+            binding.tvAnswer3.text = currentQuestion.answers[2]
+        }
+        correctAnswersCount = 0
+        allAnswersCorrect = true
+        binding.cardAnswer1.isEnabled = true
+        binding.cardAnswer2.isEnabled = true
+        binding.cardAnswer3.isEnabled = true
+        answered = false
+
+        currentQuestionCounter = 1
+        currentLevelCounter++
+        totalQuestionsInCurrentLevel = questionsForSport.count { question -> question.level.toInt() == currentLevelCounter }
+        updateCounters()
+
+        showLevelCompleteMessage()
+    }
+
+
     private fun moveToNextQuestion() {
-        // Разблокируем кнопки перед показом следующего вопроса
         binding.cardAnswer1.isEnabled = true
         binding.cardAnswer2.isEnabled = true
         binding.cardAnswer3.isEnabled = true
@@ -147,11 +158,24 @@ class SportQuestionFragment : Fragment() {
 
             allAnswersCorrect = true
             answered = false
+
+            currentQuestionCounter++
+            updateCounters()
         } else {
             binding.cardAnswer1.isEnabled = false
             binding.cardAnswer2.isEnabled = false
             binding.cardAnswer3.isEnabled = false
-            Toast.makeText(requireContext(), "Вопросы закончились", Toast.LENGTH_SHORT).show()
+            showLevelCompleteMessage()
         }
+    }
+
+    private fun showLevelCompleteMessage() {
+        Toast.makeText(requireContext(), "Вопросы уровня пройдены. " +
+                "Переход на следующий уровень", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun updateCounters() {
+        binding.tvScoreQuestions.text = "$currentQuestionCounter/$totalQuestionsInCurrentLevel"
+        binding.tvScoreLevel.text = "$currentLevelCounter"
     }
 }

@@ -3,6 +3,7 @@ package com.example.azasportsquizviktoryn.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.azasportsquizviktoryn.module.SharedPreferencesHelper
 import com.example.domain.model.LevelModel
 import com.example.domain.repository.SportsQuizRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,10 +14,29 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SportsQuizViewModel @Inject constructor(val repository: SportsQuizRepository) : ViewModel() {
+class SportsQuizViewModel @Inject constructor(val repository: SportsQuizRepository,   val sharedPreferencesHelper: SharedPreferencesHelper) : ViewModel() {
 
     private val _quizSport = MutableStateFlow(SportQuizStateFlow())
     val quizSport: StateFlow<SportQuizStateFlow> = _quizSport.asStateFlow()
+
+    private val _completedLevels = MutableStateFlow<Set<Int>>(emptySet())
+    val completedLevels: StateFlow<Set<Int>> = _completedLevels.asStateFlow()
+
+    private val completedLevelsSet: MutableSet<Int> = sharedPreferencesHelper.loadCompletedLevels().toMutableSet()
+
+
+    fun updateCompletedLevel(level: Int) {
+        viewModelScope.launch {
+            completedLevelsSet.add(level)
+            sharedPreferencesHelper.saveCompletedLevels(completedLevelsSet)
+            _completedLevels.value = completedLevelsSet
+        }
+    }
+
+    fun getLastUnlockedLevel(): Int {
+        return completedLevelsSet.maxOrNull() ?: 1
+    }
+
 
     // Метод для загрузки данных о спорте
     fun loadSports(name: String) {

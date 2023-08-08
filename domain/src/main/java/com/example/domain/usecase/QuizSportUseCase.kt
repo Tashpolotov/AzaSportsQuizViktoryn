@@ -4,9 +4,11 @@ import com.example.domain.repository.SportsQuizRepository
 
 class QuizSportUseCase(private val sportsQuizRepository: SportsQuizRepository) {
 
-    operator fun invoke(){
-        sportsQuizRepository.getSport(name = String())
-        sportsQuizRepository.getLevel(name = String())
-        sportsQuizRepository.getQuestion(name = String(), level = String())
+    operator fun invoke(completedLevel: Int) {
+        sportsQuizRepository.getSport(name = "someName")
+        sportsQuizRepository.getLevel(name = "someName")
+        sportsQuizRepository.getQuestion(name = "someName", level = "someLevel")
+        sportsQuizRepository.updateCompletedLevels(level = completedLevel)
+        sportsQuizRepository.getCompletedLevels()
     }
 }
