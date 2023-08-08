@@ -5,5 +5,6 @@ data class SportQuestionModel(
     val level: String,
     val question: String,
     val answers: List<String>,
-    var correctAnswer: Int
+    var correctAnswer: Int,
+
 )
