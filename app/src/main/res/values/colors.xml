@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="black_silver">#5C070606</color>
+    <color name="backround">#181928</color>
+    <color name="btn">#5B1F2147</color>
+    <color name="bacItem">#EAECEF</color>
+    <color name="bacHomeFragment">#A9FFFFFF</color>
+    <color name="red">#E91E1E</color>
+    <color name="green">#56AF4C</color>
+</resources>

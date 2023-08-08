@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">AzaSportsQuizViktoryn</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="vktorin">Выберите категорию и пройдите викторину</string>
+    <string name="welcome">ДОБРО ПОЖАЛОВАТЬ В СПОРТИВНУЮ ВИКТОРИНУ</string>
+</resources>

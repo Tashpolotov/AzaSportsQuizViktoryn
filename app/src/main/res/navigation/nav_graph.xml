@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.azasportsquizviktoryn.ui.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_sportLevelFragment2"
+            app:destination="@id/sportLevelFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.azasportsquizviktoryn.ui.fragments.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/sportLevelFragment2"
+        android:name="com.example.azasportsquizviktoryn.ui.fragments.SportLevelFragment"
+        android:label="fragment_sport_level"
+        tools:layout="@layout/fragment_sport_level" >
+        <action
+            android:id="@+id/action_sportLevelFragment2_to_sportQuestionFragment"
+            app:destination="@id/sportQuestionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/sportQuestionFragment"
+        android:name="com.example.azasportsquizviktoryn.ui.fragments.SportQuestionFragment"
+        android:label="fragment_sport_question"
+        tools:layout="@layout/fragment_sport_question" />
+</navigation>
